@@ -1,5 +1,5 @@
 # daily-german-email-n8n
-Daily German learning sentences via email using n8n and Claude AI
+Daily German learning sentences via email using n8n and Claude AI.
 # 🇩🇪 Daily German Learning — n8n Workflow
 
 An automated workflow that sends daily German practice sentences to your email every morning.
