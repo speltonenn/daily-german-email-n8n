@@ -1,0 +1,191 @@
+{
+  "name": "Dein tägliches Deutsch",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "184da8f1-d2f1-4e2d-85c4-7b806ee57c14",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9b795fbf-7e78-4b4d-89dc-f216fd630427",
+              "name": "level",
+              "value": "B1",
+              "type": "string"
+            },
+            {
+              "id": "29e6776a-fd39-4271-8bd3-85afb3c3d554",
+              "name": "sentence_count",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "a3da543b-a676-48ea-b84e-7dc0f6bc4323",
+              "name": "topic",
+              "value": "={{ ['Essen', 'Reisen', 'Arbeit', 'Familie', 'Wetter', 'Freizeit', 'Einkaufen'][$now.weekday % 7] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "014d9baa-a4bf-4f56-a130-dcb0859ebd8f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "YOUR_API_KEY_HERE"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-opus-4-6\",\n  \"max_tokens\": 1024,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate 5 German sentences at B1 level about {{ $('Edit Fields').item.json.topic }}. For each sentence use exactly this format with empty lines between each entry: 1. DE: German sentence EN: English translation VOKABEL: key word and explanation. Repeat for each sentence. No markdown, no stars, no hashtags.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "0a65c016-08c0-4375-aee5-9dc9283cc48a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json.content[0].text;\nconst topic = $('Edit Fields').item.json.topic;\n\nconst message = `<h2>🇩🇪 Dein tägliches Deutsch — ${topic}</h2><pre>${response}</pre><p>Viel Erfolg heute! 💪</p>`;\n\nreturn [{ json: { message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "6eda4433-e75a-44f6-b2bb-689f912d8f10",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "fromEmail": "saarapeltonen@icloud.com",
+        "toEmail": "saarapeltonen@icloud.com",
+        "subject": "🇩🇪 Dein tägliches Deutsch",
+        "html": "={{ $('Code in JavaScript').item.json.message }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        832,
+        0
+      ],
+      "id": "c00f23ef-4534-4aa1-8621-15e8ca6843cc",
+      "name": "Send an Email",
+      "webhookId": "7101659c-c889-49b0-9345-a5301da363f3",
+      "credentials": {
+        "smtp": {
+          "id": "Oehe29pFRcPPFm7d",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7cedc9d5-af3e-4479-a575-18775e49feb1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0c1192b088b5acd5189d589f32c5bedb60681f8ffa44edf5720ba7d272aa16dc"
+  },
+  "id": "QUw5Vijb68Y69wsI",
+  "tags": []
+}
