@@ -17,7 +17,7 @@ An automated workflow that sends daily German practice sentences to your email e
 - iCloud SMTP — email delivery
 
 ## Setup
-1. Import `Dein tägliches Deutsch.json` into n8n
+1. Import `daily-german-email-n8n.json` into n8n
 2. Add your Anthropic API key to the HTTP Request node
 3. Add your iCloud App-Specific Password to the email node
 4. Activate the workflow
